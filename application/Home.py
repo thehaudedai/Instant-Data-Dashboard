@@ -13,53 +13,54 @@ st.text(
 st.divider()
 
 # ---------------------------------------------------------------------------------------------
-# Upload Files
+# File Upload:
 uploaded_files = st.file_uploader(
-    label="Upload Your Dataset", type=["csv", "xlsx"], accept_multiple_files=True
+    label="Upload your Dataset(s)", type=["csv", "xlsx"], accept_multiple_files=True
 )
 # ---------------------------------------------------------------------------------------------
 
+
 # ---------------------------------------------------------------------------------------------
-# View Files:
-file_dict = {}
+# Session State:
+if "file_dict" not in st.session_state:
+    st.session_state.file_dict = {}
+if "df_dict" not in st.session_state:
+    st.session_state.df_dict = {}
+# ---------------------------------------------------------------------------------------------
 
-for file in uploaded_files:
-    file_dict[file.name] = file
 
+# ---------------------------------------------------------------------------------------------
+if uploaded_files:
+    for file in uploaded_files:
+        filename = file.name
+
+        st.session_state.file_dict[filename] = file
+
+        if filename.endswith(".csv"):
+            df = pd.read_csv(file)
+        elif filename.endswith(".xlsx"):
+            df = pd.read_excel(file)
+        else:
+            continue
+
+        st.session_state.df_dict[filename] = df
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# Select File & View:
 selected_file = st.selectbox(
-    label="Select the DataFile to View", options=file_dict.keys(), index=None
+    label="Select A File to View the Data", options=st.session_state.df_dict.keys()
 )
 
 if selected_file:
-    file = file_dict[selected_file]
-
-    if ".csv" in selected_file:
-        df = pd.read_csv(file)
-    elif ".xlsx" in selected_file:
-        df = pd.read_excel(file)
-
-    st.dataframe(df)
+    st.dataframe(st.session_state.df_dict[selected_file])
 # ---------------------------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------------------------
-# Saving dfs to Session State:
-df_dict = {}
-
-for key in file_dict:  # key is the filename (string)
-    if key.endswith(".csv"):
-        df_dict[key] = pd.read_csv(file_dict[key])
-    elif key.endswith(".xlsx"):
-        df_dict[key] = pd.read_excel(file_dict[key])
 # ---------------------------------------------------------------------------------------------
 
-for i in range(len(df_dict)):
-    st.write(df_dict[i].key)
-# ---------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
