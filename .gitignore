@@ -1,3 +1,5 @@
 test_data/
 *.xlsx
 *.csv
+*.ipynb
+__pycache__/

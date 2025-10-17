@@ -19,6 +19,7 @@ This is a living checklist of planned features and components grouped by functio
 
 - [x] Upload CSV / Excel / JSON
 - [x] View raw data (with pagination)
+- [x] View raw data Info
 - [ ] Download cleaned data
 - [ ] Save/load project sessions _(optional)_
 
