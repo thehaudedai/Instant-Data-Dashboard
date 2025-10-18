@@ -7,12 +7,20 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ---------------------------------------------------------------------------------------------
-from utils.summary import info_summary, info_duplicate_rows, info_shape
+from utils.summary import (
+    info_summary,
+    info_duplicate_rows,
+    info_shape,
+    info_sample_rows,
+)
+from components.sidebar import render_sidebar
 
 # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
 st.set_page_config(page_title="Home", page_icon="🏠", layout="wide")
+render_sidebar()  # TODO: Edit Sidebar; No CSV in label, proper formatting.
+
 
 st.title("Instant Data Dashboard")
 st.text(
@@ -90,7 +98,30 @@ if selected_file:
         )
         st.dataframe(dupes_df)
 
-st.divider()
+    st.divider()
+
+    with st.expander(label="View the sample dataframe [First, Last or Random Rows]"):
+        col1, col2 = st.columns(2)
+        with col1:
+            n_rows = st.select_slider(
+                label="No. Rows to Display", options=[2, 3, 4, 5, 6, 7, 8]
+            )
+        with col2:
+            sequence = st.selectbox(
+                label="Select the Sequence", options=["Random", "Head", "Tail"]
+            )
+
+        if sequence == "Random":
+            is_random = True
+        else:
+            is_random = False
+        start_from = sequence
+
+        st.table(
+            info_sample_rows(
+                df=current_df, number=n_rows, random=is_random, start=start_from
+            )
+        )
 # ---------------------------------------------------------------------------------------------
 
 

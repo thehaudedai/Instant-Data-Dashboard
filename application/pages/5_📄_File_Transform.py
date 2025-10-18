@@ -15,7 +15,7 @@ from components.sidebar import render_sidebar
 st.set_page_config(page_title="Data Preprocessing", page_icon="🧹", layout="wide")
 render_sidebar()
 
-st.title("Visualization Builder")
-st.text("Build Complete Visuals for the data with any metrics")
+st.title("File Conversion")
+st.text("Convert Files into suitable file types")
 st.divider()
 # ---------------------------------------------------------------------------------------------

@@ -20,7 +20,6 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Upload CSV / Excel / JSON
 - [x] View raw data (with pagination)
 - [x] View raw data Info
-- [ ] Download cleaned data
 - [ ] Save/load project sessions _(optional)_
 
 #### 🧼 Data Cleaning
@@ -54,6 +53,7 @@ This is a living checklist of planned features and components grouped by functio
 - [ ] Create new columns (via formula or presets)
 - [ ] Group by operations with aggregation (sum, mean, count, etc.)
 - [ ] Merge/Join datasets _(optional for v2)_
+- [ ] Download cleaned data
 
 ---
 
