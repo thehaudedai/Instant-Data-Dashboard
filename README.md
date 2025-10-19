@@ -20,14 +20,17 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Upload CSV / Excel / JSON
 - [x] View raw data (with pagination)
 - [x] View raw data Info
+- [ ] Filter and View Certain Columns
+- [ ] Filter and View Certain Rows via Index or Conditions
 - [ ] Save/load project sessions _(optional)_
 
 #### 🧼 Data Cleaning
 
 - [x] Rename columns
-- [ ] Remove columns / rows
-- [ ] Reorder columns
-- [ ] Drop duplicates
+- [x] Remove columns
+- [x] Reorder columns
+- [x] Drop duplicates
+- [ ] Remove rows
 - [ ] Change data types (int, float, string, datetime, categorical)
 - [ ] Handle missing values:
   - [ ] Drop rows/columns with NaNs

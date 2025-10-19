@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_sortables import sort_items
 import pandas as pd
 import sys
 import os
@@ -8,8 +9,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ---------------------------------------------------------------------------------------------
 from components.sidebar import render_sidebar
-from utils.summary import info_dtypes
-from utils.manipulation import helper_change_column_name
+from utils.summary import info_dtypes, info_sample_rows, info_duplicate_rows
+from utils.manipulation import (
+    helper_change_column_name,
+    helper_drop_columns,
+    helper_drop_duplicate_rows,
+)
 
 # ---------------------------------------------------------------------------------------------
 
@@ -50,13 +55,15 @@ if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 else:
     selected_df = pd.DataFrame()
+
+st.divider()
 # ---------------------------------------------------------------------------------------------
 
 
-# ---------------------------------------------------------------------------------------------
-# Column Operations
+# Column Operations:
 st.header("Column Operations:")
-
+# ---------------------------------------------------------------------------------------------
+# Rename Columns
 st.subheader("Rename Columns")
 position = 1
 col1, col2, col3 = st.columns(3)
@@ -66,7 +73,7 @@ for column in selected_df:
         with col1:
             new_column_name = st.text_input(
                 label=f"Rename {column}",
-                placeholder=column,
+                value=column,
                 label_visibility="collapsed",
                 key=f"rename_{column}",
             )
@@ -103,14 +110,64 @@ if selected_file:
 
 
 # ---------------------------------------------------------------------------------------------
+# Drop Columns:
+st.subheader("Drop Columns")
+st.write("Select the columns you wish to remove")
+col1, col2 = st.columns([0.8, 0.2], vertical_alignment="center")
+
+with col1:
+    column_drop_list = st.pills(
+        label="Select the columns you wish to remove",
+        options=selected_df.columns,
+        label_visibility="collapsed",
+        selection_mode="multi",
+        key="column_drop_list",
+    )
+with col2:
+    st.button(
+        label="Drop Columns",
+        use_container_width=True,
+        on_click=helper_drop_columns,
+    )
+
+if selected_file:
+    selected_df = st.session_state.df_dict[selected_file]
 # ---------------------------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------------------------
+# Reorder Columns:
+st.subheader("Reorder Columns")
+sorted_columns = sort_items(items=selected_df.columns.to_list())
+
+selected_df = selected_df[sorted_columns]
+if selected_file:
+    selected_df = st.session_state.df_dict[selected_file]
+st.dataframe(info_sample_rows(selected_df, 3, random=False, start="Head"))
+
+st.divider()
 # ---------------------------------------------------------------------------------------------
 
-
+# Column Operations:
+st.header("Row Operations:")
 # ---------------------------------------------------------------------------------------------
+# Drop Duplicates
+st.subheader("Drop Duplicate Rows")
+duped_df = info_duplicate_rows(selected_df)[1]
+if duped_df.empty:
+    st.success("No Duplicate Rows")
+else:
+    st.dataframe(duped_df)
+    col1, col2, col3 = st.columns(3)
+    with col2:
+        st.button(
+            label="Drop Duplicate Rows",
+            use_container_width=True,
+            on_click=helper_drop_duplicate_rows,
+        )
+
+if selected_file:
+    selected_df = st.session_state.df_dict[selected_file]
 # ---------------------------------------------------------------------------------------------
 
 
