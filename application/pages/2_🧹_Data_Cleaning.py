@@ -32,11 +32,20 @@ if not st.session_state.get("file_dict") or not st.session_state.get("df_dict"):
 
 # ---------------------------------------------------------------------------------------------
 # Select Dataframe:
-selected_file = st.selectbox(
-    label="Select A File to Clean",
-    options=st.session_state.df_dict.keys(),
-    index=None,
-)
+if st.session_state.get("df_dict"):
+    selected_file = st.selectbox(
+        label="Select A File to Clean",
+        options=st.session_state.df_dict.keys(),
+        index=None,
+    )
+else:
+    selected_file = st.selectbox(
+        label="Select A File to Clean",
+        options=[],
+        index=None,
+    )
+st.session_state.selected_file = selected_file
+
 if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 else:
@@ -55,7 +64,7 @@ col1, col2, col3 = st.columns(3)
 for column in selected_df:
     if position == 1:
         with col1:
-            new_name = st.text_input(
+            new_column_name = st.text_input(
                 label=f"Rename {column}",
                 placeholder=column,
                 label_visibility="collapsed",
@@ -64,24 +73,32 @@ for column in selected_df:
         position = 2
     elif position == 2:
         with col2:
-            new_name = st.text_input(
+            new_column_name = st.text_input(
                 label=f"Rename {column}",
-                placeholder=column,
+                value=column,
                 label_visibility="collapsed",
                 key=f"rename_{column}",
             )
         position = 3
     elif position == 3:
         with col3:
-            new_name = st.text_input(
+            new_column_name = st.text_input(
                 label=f"Rename {column}",
-                placeholder=column,
+                value=column,
                 label_visibility="collapsed",
                 key=f"rename_{column}",
             )
         position = 1
 
-# st.button(label="Change Column Name", on_click=helper_change_column_name(selected_df, column= , new_name= ))
+rename_button = st.button(
+    label="Rename Columns",
+    use_container_width=True,
+    type="secondary",
+    on_click=helper_change_column_name,
+)
+
+if selected_file:
+    selected_df = st.session_state.df_dict[selected_file]
 # ---------------------------------------------------------------------------------------------
 
 

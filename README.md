@@ -24,7 +24,7 @@ This is a living checklist of planned features and components grouped by functio
 
 #### 🧼 Data Cleaning
 
-- [ ] Rename columns
+- [x] Rename columns
 - [ ] Remove columns / rows
 - [ ] Reorder columns
 - [ ] Drop duplicates
