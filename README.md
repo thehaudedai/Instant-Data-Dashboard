@@ -31,6 +31,8 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Reorder columns
 - [x] Drop duplicates
 - [ ] Remove rows
+  - [x] Remove Rows by Filtering
+  - [ ] Remove Rows by Indexing
 - [ ] Change data types (int, float, string, datetime, categorical)
 - [ ] Handle missing values:
   - [ ] Drop rows/columns with NaNs

@@ -14,6 +14,8 @@ from utils.manipulation import (
     helper_change_column_name,
     helper_drop_columns,
     helper_drop_duplicate_rows,
+    helper_filter_dataset,
+    helper_drop_displayed_rows,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -168,6 +170,68 @@ else:
 
 if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# Drop Rows (By Condition + By Specific Row)
+st.subheader("Drop Rows")
+
+# Condition Based:
+col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.35, 0.2])
+with col1:
+    column_name = st.selectbox(
+        label="Column Name",
+        options=selected_df.columns,
+        placeholder="Age",
+        index=None,
+        key="drop_row_column",
+    )
+with col2:
+    operator = st.selectbox(
+        label="Operator",
+        options=["==", "!=", ">", ">=", "<", "<=", "Contains"],
+        index=0,
+        key="drop_row_operator",
+    )
+with col3:
+    comparison_value = st.text_input(
+        label="Value", placeholder="30", key="drop_row_value"
+    )
+with col4:
+    comparison_value_type = st.selectbox(
+        label="Value Type",
+        options=["String", "Integer", "Float", "Boolean"],
+        placeholder="Integer",
+        key="drop_row_type",
+    )
+filter_button = st.button(
+    label="Filter Dataset", use_container_width=True, on_click=helper_filter_dataset
+)
+if filter_button:
+    if len(st.session_state.drop_row_df) == 0:
+        st.info("No Rows matched the condition above!")
+    else:
+        st.dataframe(st.session_state.drop_row_df)
+        st.button(
+            f"Delete {len(st.session_state.drop_row_df)} Rows",
+            on_click=helper_drop_displayed_rows,
+            use_container_width=True,
+        )
+
+# TODO: Contains Error When not string (Column when not string)
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
 
