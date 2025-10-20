@@ -59,16 +59,67 @@ def helper_filter_dataset():
     value = st.session_state.get("drop_row_value")
     data_type = st.session_state.get("drop_row_type")
 
-    if not selected_file or not df_dict:
+    if (
+        not selected_file
+        or not df_dict
+        or not column_name
+        or not operator
+        or value is None
+        or not data_type
+    ):
+        st.warning("Please make sure all filter inputs are filled.")
         return
 
     df = df_dict[selected_file].copy()
 
-    if operator == "Contains":
-        df_new = df[df[column_name].astype(str).str.contains(value, na=False)]
-    else:
-        expression = f"df['{column_name}'] {operator} {repr(value)}"
-        df_new = df[eval(expression)]
+    # Convert value to proper type
+    try:
+        match data_type:
+            case "String":
+                value = str(value)
+            case "Integer":
+                value = int(value)
+            case "Float":
+                value = float(value)
+            case "Boolean":
+                if isinstance(value, str) and value.lower() == "true":
+                    value = True
+                elif isinstance(value, str) and value.lower() == "false":
+                    value = False
+                else:
+                    raise ValueError("Boolean value must be 'true' or 'false'")
+    except ValueError as e:
+        st.warning(f"Invalid value for type '{data_type}': {e}")
+        return
+
+    # Perform filtering with exception handling
+    try:
+        match operator:
+            case "==":
+                df_new = df[df[column_name] == value]
+            case "!=":
+                df_new = df[df[column_name] != value]
+            case ">":
+                df_new = df[df[column_name] > value]
+            case ">=":
+                df_new = df[df[column_name] >= value]
+            case "<":
+                df_new = df[df[column_name] < value]
+            case "<=":
+                df_new = df[df[column_name] <= value]
+            case "Contains":
+                if not isinstance(value, str):
+                    st.warning("'Contains' operator only works with string values.")
+                    return
+                df_new = df[
+                    df[column_name].astype(str).str.contains(str(value), na=False)
+                ]
+            case _:
+                st.warning(f"Unknown operator: {operator}")
+                return
+    except Exception as e:
+        st.warning(f"Error while filtering: {e}")
+        return
 
     st.session_state.drop_row_df = df_new
 

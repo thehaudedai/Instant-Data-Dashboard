@@ -209,15 +209,16 @@ filter_button = st.button(
     label="Filter Dataset", use_container_width=True, on_click=helper_filter_dataset
 )
 if filter_button:
-    if len(st.session_state.drop_row_df) == 0:
-        st.info("No Rows matched the condition above!")
-    else:
-        st.dataframe(st.session_state.drop_row_df)
-        st.button(
-            f"Delete {len(st.session_state.drop_row_df)} Rows",
-            on_click=helper_drop_displayed_rows,
-            use_container_width=True,
-        )
+    if "drop_row_df" in st.session_state:
+        if len(st.session_state.drop_row_df) == 0:
+            st.info("No Rows matched the condition above!")
+        else:
+            st.dataframe(st.session_state.drop_row_df)
+            st.button(
+                f"Delete {len(st.session_state.drop_row_df)} Rows",
+                on_click=helper_drop_displayed_rows,
+                use_container_width=True,
+            )
 
 # TODO: Contains Error When not string (Column when not string)
 # ---------------------------------------------------------------------------------------------
