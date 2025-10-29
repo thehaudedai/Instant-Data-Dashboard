@@ -16,6 +16,7 @@ from utils.manipulation import (
     helper_drop_duplicate_rows,
     helper_filter_dataset,
     helper_drop_displayed_rows,
+    helper_apply_dtype_and_rename,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -105,50 +106,57 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
 with tab1:
     # Column Operations:
     st.header("Column Operations:")
+
     # ---------------------------------------------------------------------------------------------
-    # Rename Columns
-    st.subheader("Rename Columns")
-    position = 1
-    col1, col2, col3 = st.columns(3)
+    # Change Data Type:
+    st.subheader("Rename / Change Data Types")
 
-    for column in selected_df:
-        if position == 1:
-            with col1:
-                new_column_name = st.text_input(
-                    label=f"Rename {column}",
-                    value=column,
-                    label_visibility="collapsed",
-                    key=f"rename_{column}",
-                )
-            position = 2
-        elif position == 2:
-            with col2:
-                new_column_name = st.text_input(
-                    label=f"Rename {column}",
-                    value=column,
-                    label_visibility="collapsed",
-                    key=f"rename_{column}",
-                )
-            position = 3
-        elif position == 3:
-            with col3:
-                new_column_name = st.text_input(
-                    label=f"Rename {column}",
-                    value=column,
-                    label_visibility="collapsed",
-                    key=f"rename_{column}",
-                )
-            position = 1
+    possible_data_types = [
+        "int64",
+        "float64",
+        "boolean",
+        "string",
+        "object",
+        "category",
+        "datetime64[ns]",
+        "timedelta64[ns]",
+        "datetime64[ns, UTC]",
+        "period[M]",
+        "period[Q]",
+        "Int64",
+        "Float64",
+        "complex128",
+    ]
 
-    rename_button = st.button(
-        label="Rename Columns",
-        use_container_width=True,
-        type="secondary",
-        on_click=helper_change_column_name,
+    dtype_df = pd.DataFrame(
+        [
+            {"Column Name": col, "DataType": info_dtypes(selected_df, col)}
+            for col in selected_df
+        ]
+    )
+    dtype_df["DataType"] = dtype_df["DataType"].astype(str)
+
+    dtype_df_column_config = {
+        "Column Name": st.column_config.TextColumn("Column Name", disabled=False),
+        "DataType": st.column_config.SelectboxColumn(
+            "DataType",
+            options=possible_data_types,
+            required=True,
+            help="Select a datatype for this column",
+        ),
+    }
+
+    st.data_editor(
+        data=dtype_df,
+        num_rows="fixed",
+        column_config=dtype_df_column_config,
+        key="dtype_editor",
     )
 
-    if selected_file:
-        selected_df = st.session_state.df_dict[selected_file]
+    if st.button("Apply Renames and Dtype Changes", use_container_width=True):
+        helper_apply_dtype_and_rename()
+
+    st.divider()
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
@@ -174,6 +182,8 @@ with tab1:
 
     if selected_file:
         selected_df = st.session_state.df_dict[selected_file]
+
+    st.divider()
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
@@ -185,12 +195,10 @@ with tab1:
     if selected_file:
         selected_df = st.session_state.df_dict[selected_file]
     st.dataframe(info_sample_rows(selected_df, 3, random=False, start="Head"))
+
+    st.divider()
     # ---------------------------------------------------------------------------------------------
 
-    # ---------------------------------------------------------------------------------------------
-    # Change Data Type:
-
-    # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
 

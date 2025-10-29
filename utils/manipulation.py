@@ -141,3 +141,33 @@ def helper_drop_displayed_rows():
     df = df.drop(df_to_delete.index)
     st.session_state.df_dict[selected_file] = df
     st.session_state.drop_row_df = None
+
+
+def helper_apply_dtype_and_rename():
+    selected_file = st.session_state.get("selected_file")
+    df_dict = st.session_state.get("df_dict")
+    editor_state = st.session_state.get("dtype_editor")
+
+    if not selected_file or not df_dict or not editor_state:
+        return
+
+    df = df_dict[selected_file].copy()
+    edited_rows = editor_state.get("edited_rows", {})
+
+    for i, changes in edited_rows.items():
+        old_col = df.columns[int(i)]
+        new_col = changes.get("Column Name", old_col)
+        new_dtype = changes.get("DataType")
+
+        # Rename column if changed
+        if new_col != old_col:
+            df.rename(columns={old_col: new_col}, inplace=True)
+
+        # Change dtype if changed
+        if new_dtype and new_dtype != str(df[new_col].dtype):
+            try:
+                df[new_col] = df[new_col].astype(new_dtype)
+            except Exception as e:
+                st.warning(f"Could not convert {new_col} to {new_dtype}: {e}")
+
+    st.session_state.df_dict[selected_file] = df
