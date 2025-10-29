@@ -28,7 +28,7 @@ st.text(
 )
 # ---------------------------------------------------------------------------------------------
 st.divider()
-
+temp_file = "test_data\products.csv"
 # ---------------------------------------------------------------------------------------------
 # File Upload:
 uploaded_files = st.file_uploader(
@@ -61,6 +61,10 @@ if uploaded_files:
             continue
 
         st.session_state.df_dict[filename] = df
+
+else:
+    df = pd.read_csv(temp_file)
+    st.session_state.df_dict["Products"] = df
 # ---------------------------------------------------------------------------------------------
 
 

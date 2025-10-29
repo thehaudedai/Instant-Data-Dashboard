@@ -178,49 +178,57 @@ if selected_file:
 st.subheader("Drop Rows")
 
 # Condition Based:
-col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.35, 0.2])
-with col1:
-    column_name = st.selectbox(
-        label="Column Name",
-        options=selected_df.columns,
-        placeholder="Age",
-        index=None,
-        key="drop_row_column",
+with st.expander("By Condition"):
+    col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.35, 0.2])
+    with col1:
+        column_name = st.selectbox(
+            label="Column Name",
+            options=selected_df.columns,
+            placeholder="Age",
+            index=None,
+            key="drop_row_column",
+        )
+    with col2:
+        operator = st.selectbox(
+            label="Operator",
+            options=["==", "!=", ">", ">=", "<", "<=", "Contains"],
+            index=0,
+            key="drop_row_operator",
+        )
+    with col3:
+        comparison_value = st.text_input(
+            label="Value", placeholder="30", key="drop_row_value"
+        )
+    with col4:
+        comparison_value_type = st.selectbox(
+            label="Value Type",
+            options=["String", "Integer", "Float", "Boolean"],
+            placeholder="Integer",
+            key="drop_row_type",
+        )
+    filter_button = st.button(
+        label="Filter Dataset", use_container_width=True, on_click=helper_filter_dataset
     )
-with col2:
-    operator = st.selectbox(
-        label="Operator",
-        options=["==", "!=", ">", ">=", "<", "<=", "Contains"],
-        index=0,
-        key="drop_row_operator",
-    )
-with col3:
-    comparison_value = st.text_input(
-        label="Value", placeholder="30", key="drop_row_value"
-    )
-with col4:
-    comparison_value_type = st.selectbox(
-        label="Value Type",
-        options=["String", "Integer", "Float", "Boolean"],
-        placeholder="Integer",
-        key="drop_row_type",
-    )
-filter_button = st.button(
-    label="Filter Dataset", use_container_width=True, on_click=helper_filter_dataset
-)
-if filter_button:
-    if "drop_row_df" in st.session_state:
-        if len(st.session_state.drop_row_df) == 0:
-            st.info("No Rows matched the condition above!")
-        else:
-            st.dataframe(st.session_state.drop_row_df)
-            st.button(
-                f"Delete {len(st.session_state.drop_row_df)} Rows",
-                on_click=helper_drop_displayed_rows,
-                use_container_width=True,
-            )
-
-# TODO: Contains Error When not string (Column when not string)
+    if filter_button:
+        if "filtered_df" in st.session_state:
+            if len(st.session_state.filtered_df) == 0:
+                st.info("No Rows matched the condition above!")
+            else:
+                st.dataframe(st.session_state.filtered_df)
+                st.button(
+                    f"Delete {len(st.session_state.filtered_df)} Rows",
+                    on_click=helper_drop_displayed_rows,
+                    use_container_width=True,
+                )
+# Index Based:
+with st.expander("By Index"):
+    col1, col2 = st.columns([0.75, 0.25])
+    with col1:
+        rows_index = st.number_input(
+            label="Index of the row to delete:", min_value=0, max_value=len(selected_df)
+        )
+    with col2:
+        st.button("Delete Row")
 # ---------------------------------------------------------------------------------------------
 
 

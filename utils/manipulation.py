@@ -121,7 +121,11 @@ def helper_filter_dataset():
         st.warning(f"Error while filtering: {e}")
         return
 
-    st.session_state.drop_row_df = df_new
+    # selected_indices = []
+    df_new["Select"] = False
+
+    st.session_state.filtered_df = df_new
+    # st.session_state.selected_index_df = selected_indices
 
 
 def helper_drop_displayed_rows():
