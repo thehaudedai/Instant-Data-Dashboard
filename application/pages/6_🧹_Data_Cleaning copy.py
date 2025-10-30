@@ -17,11 +17,13 @@ from utils.manipulation import (
     helper_filter_dataset,
     helper_drop_displayed_rows,
     helper_apply_dtype_and_rename,
+    helper_create_column,
 )
 
 # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
+# Page Config
 st.set_page_config(page_title="Data Preprocessing", page_icon="🧹", layout="wide")
 render_sidebar()
 
@@ -73,7 +75,7 @@ column_config = st.session_state.get(f"column_config_{selected_file}", {})
 # ---------------------------------------------------------------------------------------------
 # Main Data Editor Dataframe
 st.data_editor(
-    data=selected_df,
+    data=st.session_state.df_dict[selected_file],
     use_container_width=True,
     hide_index=False,
     num_rows="dynamic",
@@ -134,26 +136,29 @@ with tab1:
             for col in selected_df
         ]
     )
-    dtype_df["DataType"] = dtype_df["DataType"].astype(str)
+    if not dtype_df.empty:
+        dtype_df["DataType"] = dtype_df["DataType"].astype(str)
 
-    dtype_df_column_config = {
-        "Column Name": st.column_config.TextColumn("Column Name", disabled=False),
-        "DataType": st.column_config.SelectboxColumn(
-            "DataType",
-            options=possible_data_types,
-            required=True,
-            help="Select a datatype for this column",
-        ),
-    }
+        dtype_df_column_config = {
+            "Column Name": st.column_config.TextColumn("Column Name", disabled=False),
+            "DataType": st.column_config.SelectboxColumn(
+                "DataType",
+                options=possible_data_types,
+                required=True,
+                help="Select a datatype for this column",
+            ),
+        }
+    else:
+        dtype_df_column_config = None
 
     st.data_editor(
         data=dtype_df,
         num_rows="fixed",
-        column_config=dtype_df_column_config,
+        column_config=dtype_df_column_config or None,
         key="dtype_editor",
     )
 
-    if st.button("Apply Renames and Dtype Changes", use_container_width=True):
+    if st.button("Apply Renames and DataType Changes", use_container_width=True):
         helper_apply_dtype_and_rename()
 
     st.divider()
@@ -193,8 +198,18 @@ with tab1:
 
     selected_df = selected_df[sorted_columns]
     if selected_file:
-        selected_df = st.session_state.df_dict[selected_file]
+        st.session_state.df_dict[selected_file] = selected_df
     st.dataframe(info_sample_rows(selected_df, 3, random=False, start="Head"))
+
+    st.divider()
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    # Create Column (With Values)
+    st.subheader("Create New Column")
+    new_col_name = st.text_input(label="Column Name", placeholder="Name of the Column")
+
+    st.button(label="Create Column", on_click=helper_create_column)
 
     st.divider()
     # ---------------------------------------------------------------------------------------------

@@ -171,3 +171,7 @@ def helper_apply_dtype_and_rename():
                 st.warning(f"Could not convert {new_col} to {new_dtype}: {e}")
 
     st.session_state.df_dict[selected_file] = df
+
+
+def helper_create_column():
+    pass
