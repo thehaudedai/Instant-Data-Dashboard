@@ -7,6 +7,9 @@ A Streamlit dashboard that lets users upload datasets, clean and explore data, a
 
 ---
 
+**Important**: The Repo contains a hidden .moonshot.md markdown file containing the detailed logs of the proejct including my thoughts, journals and added features with time spent on each day
+
+---
 ## 🚧 Project Features Roadmap & Implementation Checklist
 
 This is a living checklist of planned features and components grouped by functionality. Use it to track progress and stay focused on the scope.
