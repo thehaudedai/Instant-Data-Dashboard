@@ -75,7 +75,7 @@ This is a living checklist of planned features and components grouped by functio
   - [ ] Min, Max
   - [ ] Std Deviation
   - [ ] Unique values
-  - [ ] Value counts (for categoricals)
+  - [ ] Value counts (for categorical)
 - [ ] Correlation matrix (with heatmap)
 - [ ] Covariance matrix
 - [ ] Skewness / Kurtosis _(optional)_
@@ -110,7 +110,7 @@ This is a living checklist of planned features and components grouped by functio
 - [ ] Export chart as image
 - [ ] Export chart as Python code (Matplotlib / Seaborn / Plotly)
 
-#### 📁 Dashboarding _(Optional for v2)_
+#### 📁 Dashboard _(Optional for v2)_
 
 - [ ] Combine visuals into a dashboard layout
 - [ ] Save/load dashboards

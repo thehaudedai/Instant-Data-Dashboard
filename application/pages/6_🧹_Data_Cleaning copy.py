@@ -11,13 +11,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from components.sidebar import render_sidebar
 from utils.summary import info_dtypes, info_sample_rows, info_duplicate_rows
 from utils.manipulation import (
-    helper_change_column_name,
     helper_drop_columns,
-    helper_drop_duplicate_rows,
-    helper_filter_dataset,
-    helper_drop_displayed_rows,
     helper_apply_dtype_and_rename,
     helper_create_column,
+    helper_display_function_options,
+    helper_display_type_based_input,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -74,8 +72,8 @@ column_config = st.session_state.get(f"column_config_{selected_file}", {})
 
 # ---------------------------------------------------------------------------------------------
 # Main Data Editor Dataframe
-st.data_editor(
-    data=st.session_state.df_dict[selected_file],
+primary_df_editor = st.data_editor(
+    data=selected_df,
     use_container_width=True,
     hide_index=False,
     num_rows="dynamic",
@@ -85,6 +83,12 @@ st.data_editor(
 
 with st.expander("Changes & Edits"):
     st.write(st.session_state.get(f"data_edit_{selected_file}"))
+
+if st.button(label="Save Edits", use_container_width=True):
+    st.session_state.df_dict[selected_file] = primary_df_editor
+
+if selected_file:
+    selected_df = st.session_state.df_dict[selected_file]
 # ---------------------------------------------------------------------------------------------
 
 
@@ -207,9 +211,45 @@ with tab1:
     # ---------------------------------------------------------------------------------------------
     # Create Column (With Values)
     st.subheader("Create New Column")
-    new_col_name = st.text_input(label="Column Name", placeholder="Name of the Column")
+
+    column_fil_formulas = []
+
+    col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.15, 0.4])
+
+    with col1:
+        new_col_name = st.text_input(
+            label="Column Name", placeholder="Name of the Column", key="new_col_name"
+        )
+    with col2:
+        new_col_dtype = st.selectbox(
+            label="Data Type", options=possible_data_types, index=3, key="new_col_dtype"
+        )
+    with col3:
+        new_col_mode = st.radio(
+            label="Fill Type",
+            options=["Same Value", "Formula"],
+            horizontal=True,
+            key="new_col_mode",
+        )
+    with col4:
+        if new_col_mode == "Same Value":
+            new_col_value = helper_display_type_based_input(
+                new_col_dtype, "new_col_value"
+            )
+        elif new_col_mode == "Formula":
+            new_col_formula = st.selectbox(
+                label="Formula",
+                options=column_fil_formulas,
+                index=0,
+                key="new_col_formula",
+            )
+
+    if new_col_mode == "Formula":
+        helper_display_function_options()
 
     st.button(label="Create Column", on_click=helper_create_column)
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
 
     st.divider()
     # ---------------------------------------------------------------------------------------------
