@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_sortables import sort_items
 import pandas as pd
+import datetime
 import sys
 import os
 
@@ -9,13 +10,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ---------------------------------------------------------------------------------------------
 from components.sidebar import render_sidebar
-from utils.summary import info_dtypes, info_sample_rows, info_duplicate_rows
+from components.display import display_type_based_input, display_function_options
+from utils.preset import DATA_TYPE_OPTIONS
+from utils.summary import info_dtypes, info_sample_rows
 from utils.manipulation import (
+    helper_remove_whitespaces,
     helper_drop_columns,
     helper_apply_dtype_and_rename,
     helper_create_column,
-    helper_display_function_options,
-    helper_display_type_based_input,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -58,6 +60,11 @@ if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 else:
     selected_df = pd.DataFrame()
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+helper_remove_whitespaces(selected_df)
 # ---------------------------------------------------------------------------------------------
 
 
@@ -117,23 +124,6 @@ with tab1:
     # Change Data Type:
     st.subheader("Rename / Change Data Types")
 
-    possible_data_types = [
-        "int64",
-        "float64",
-        "boolean",
-        "string",
-        "object",
-        "category",
-        "datetime64[ns]",
-        "timedelta64[ns]",
-        "datetime64[ns, UTC]",
-        "period[M]",
-        "period[Q]",
-        "Int64",
-        "Float64",
-        "complex128",
-    ]
-
     dtype_df = pd.DataFrame(
         [
             {"Column Name": col, "DataType": info_dtypes(selected_df, col)}
@@ -147,7 +137,7 @@ with tab1:
             "Column Name": st.column_config.TextColumn("Column Name", disabled=False),
             "DataType": st.column_config.SelectboxColumn(
                 "DataType",
-                options=possible_data_types,
+                options=DATA_TYPE_OPTIONS,
                 required=True,
                 help="Select a datatype for this column",
             ),
@@ -222,7 +212,7 @@ with tab1:
         )
     with col2:
         new_col_dtype = st.selectbox(
-            label="Data Type", options=possible_data_types, index=3, key="new_col_dtype"
+            label="Data Type", options=DATA_TYPE_OPTIONS, index=3, key="new_col_dtype"
         )
     with col3:
         new_col_mode = st.radio(
@@ -233,9 +223,8 @@ with tab1:
         )
     with col4:
         if new_col_mode == "Same Value":
-            new_col_value = helper_display_type_based_input(
-                new_col_dtype, "new_col_value"
-            )
+            new_col_value = display_type_based_input(new_col_dtype)
+            st.session_state.new_col_value = new_col_value
         elif new_col_mode == "Formula":
             new_col_formula = st.selectbox(
                 label="Formula",
@@ -245,7 +234,7 @@ with tab1:
             )
 
     if new_col_mode == "Formula":
-        helper_display_function_options()
+        display_function_options()
 
     st.button(label="Create Column", on_click=helper_create_column)
     if selected_file:
@@ -271,8 +260,31 @@ with tab1:
 
 
 # ---------------------------------------------------------------------------------------------
+
 # ---------------------------------------------------------------------------------------------
 
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------

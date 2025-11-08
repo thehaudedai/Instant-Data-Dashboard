@@ -110,90 +110,11 @@ def helper_create_column():
 # ------------------------------------------------------------------------------------------------
 
 
-def helper_display_function_options():
-    pass
+def helper_remove_whitespaces(df):
+    for column in df:
+        df[column] = df[column].str.strip()
+        df[column] = df[column].str.replace(r"\s+", " ", regex=True)
 
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
-
-
-def helper_display_type_based_input(type, key_name):
-    type = str(type)  # normalize
-    input_value = None
-
-    if type in ["int64", "Int64"]:
-        input_value = st.number_input(
-            label="Value", placeholder="1024", step=1, key=key_name
-        )
-
-    elif type in ["float64", "Float64"]:
-        input_value = st.number_input(
-            label="Value", placeholder="223.28", step=0.001, format="%.6f", key=key_name
-        )
-
-    elif type == "complex128":
-        real = st.number_input("Real part", step=0.1, key=f"{key_name}_real")
-        imag = st.number_input("Imag part", step=0.1, key=f"{key_name}_imag")
-        input_value = complex(real, imag)
-
-    elif type == "boolean":
-        input_value = st.toggle(label="True/False", value=False, key=key_name)
-
-    elif type in ["string", "category", "object"]:
-        input_value = st.text_input(
-            label="Value", placeholder="Enter text", key=key_name
-        )
-
-    elif type == "datetime64[ns]" or type == "datetime64[ns, UTC]":
-        date_value = st.date_input(label="Value", value="today", key=key_name)
-        if type.endswith("UTC"):
-            input_value = pd.Timestamp(date_value, tz="UTC")
-        else:
-            input_value = pd.Timestamp(date_value)
-
-    elif type == "timedelta64[ns]":
-        # Input number of days as a float, convert to timedelta
-        days = st.number_input(
-            label="Days (float)",
-            step=0.25,
-            placeholder="e.g. 2.5 for 2 days 12 hours",
-            key=key_name,
-        )
-        input_value = pd.to_timedelta(days, unit="D")
-
-    elif type == "period[M]":
-        # Period by month
-        date_value = st.date_input(label="Month period", value="today", key=key_name)
-        input_value = pd.Period(date_value, freq="M")
-
-    elif type == "period[Q]":
-        # Period by quarter
-        date_value = st.date_input(label="Quarter period", value="today", key=key_name)
-        input_value = pd.Period(date_value, freq="Q")
-
-    else:
-        st.warning(f"Unsupported dtype: {type}")
-        input_value = None
-
-    return input_value
-
-
-# ------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------
-possible_data_types = [
-    "int64",
-    "float64",
-    "boolean",
-    "string",
-    "object",
-    "category",
-    "datetime64[ns]",
-    "timedelta64[ns]",
-    "datetime64[ns, UTC]",
-    "period[M]",
-    "period[Q]",
-    "Int64",
-    "Float64",
-    "complex128",
-]

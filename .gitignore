@@ -5,3 +5,4 @@ test_data/
 __pycache__/
 note.txt
 note.md
+.vscode/

@@ -7,6 +7,12 @@ A Streamlit dashboard that lets users upload datasets, clean and explore data, a
 
 ---
 
+```
+👀:  Open and view the hidden `.moonshot.md` file, in order to view the project logs, work time every day, my thoughts when doing this (meant as a checkpoint so I can resume my workflow when coming back from a break - feel free to go through my thoughts if you want).
+```
+
+---
+
 ## 🚧 Project Features Roadmap & Implementation Checklist
 
 This is a living checklist of planned features and components grouped by functionality. Use it to track progress and stay focused on the scope.
@@ -29,11 +35,11 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Rename columns
 - [x] Remove columns
 - [x] Reorder columns
-- [x] Drop duplicates
+- [ ] Drop duplicates
 - [ ] Remove rows
-  - [x] Remove Rows by Filtering
-  - [ ] Remove Rows by Indexing
-- [ ] Change data types (int, float, string, datetime, categorical)
+  - [ ] Remove Rows by Filtering
+  - [x] Remove Rows by Indexing
+- [x] Change data types (int, float, string, datetime, categorical)
 - [ ] Handle missing values:
   - [ ] Drop rows/columns with NaNs
   - [ ] Fill NaNs with:
@@ -43,10 +49,9 @@ This is a living checklist of planned features and components grouped by functio
     - [ ] Forward Fill
     - [ ] Backward Fill
     - [ ] Custom value
-- [ ] Replace values (via mapping or custom)
-- [ ] Edit specific cells via GUI
-- [ ] Strip whitespaces
-- [ ] Convert strings to datetime
+- [x] Edit/Replace specific cells/values (via data editor)
+- [x] Strip whitespaces
+- [x] Convert strings to datetime considering the string is preformatted in a datetime format
 - [ ] Convert categorical to numerical:
   - [ ] Label Encoding
   - [ ] One-Hot Encoding
@@ -54,8 +59,10 @@ This is a living checklist of planned features and components grouped by functio
 - [ ] Transpose data
 - [ ] Pivot / Unpivot (Melt) data
 - [ ] Filter rows (based on conditions)
-- [ ] Sort data by columns
-- [ ] Create new columns (via formula or presets)
+- [x] Sort data by columns
+- [ ] Create new columns
+  - [ ] Using Formula
+  - [x] Using Same Values for all rows in the new column
 - [ ] Group by operations with aggregation (sum, mean, count, etc.)
 - [ ] Merge/Join datasets _(optional for v2)_
 - [ ] Download cleaned data
