@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_sortables import sort_items
 import pandas as pd
+import datetime
 import sys
 import os
 
@@ -9,18 +10,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ---------------------------------------------------------------------------------------------
 from components.sidebar import render_sidebar
-from utils.summary import info_dtypes, info_sample_rows, info_duplicate_rows
+from components.display import display_type_based_input, display_function_options
+from utils.preset import DATA_TYPE_OPTIONS
+from utils.summary import info_dtypes, info_sample_rows
 from utils.manipulation import (
-    helper_change_column_name,
     helper_drop_columns,
-    helper_drop_duplicate_rows,
-    helper_filter_dataset,
-    helper_drop_displayed_rows,
+    helper_apply_dtype_and_rename,
+    helper_create_column,
 )
 
 # ---------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
+# Page Config
 st.set_page_config(page_title="Data Preprocessing", page_icon="🧹", layout="wide")
 render_sidebar()
 
@@ -57,178 +59,202 @@ if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 else:
     selected_df = pd.DataFrame()
-
-st.divider()
 # ---------------------------------------------------------------------------------------------
 
 
-# Column Operations:
-st.header("Column Operations:")
 # ---------------------------------------------------------------------------------------------
-# Rename Columns
-st.subheader("Rename Columns")
-position = 1
-col1, col2, col3 = st.columns(3)
+# Adding / Validating Column Config for every file
+if f"column_config_{selected_file}" not in st.session_state:
+    st.session_state[f"column_config_{selected_file}"] = {}
 
-for column in selected_df:
-    if position == 1:
-        with col1:
-            new_column_name = st.text_input(
-                label=f"Rename {column}",
-                value=column,
-                label_visibility="collapsed",
-                key=f"rename_{column}",
-            )
-        position = 2
-    elif position == 2:
-        with col2:
-            new_column_name = st.text_input(
-                label=f"Rename {column}",
-                value=column,
-                label_visibility="collapsed",
-                key=f"rename_{column}",
-            )
-        position = 3
-    elif position == 3:
-        with col3:
-            new_column_name = st.text_input(
-                label=f"Rename {column}",
-                value=column,
-                label_visibility="collapsed",
-                key=f"rename_{column}",
-            )
-        position = 1
+column_config = st.session_state.get(f"column_config_{selected_file}", {})
+# ---------------------------------------------------------------------------------------------
 
-rename_button = st.button(
-    label="Rename Columns",
+
+# ---------------------------------------------------------------------------------------------
+# Main Data Editor Dataframe
+primary_df_editor = st.data_editor(
+    data=selected_df,
     use_container_width=True,
-    type="secondary",
-    on_click=helper_change_column_name,
+    hide_index=False,
+    num_rows="dynamic",
+    key=f"data_edit_{selected_file}",
+    column_config=column_config or None,
 )
 
-if selected_file:
-    selected_df = st.session_state.df_dict[selected_file]
-# ---------------------------------------------------------------------------------------------
+with st.expander("Changes & Edits"):
+    st.write(st.session_state.get(f"data_edit_{selected_file}"))
 
-
-# ---------------------------------------------------------------------------------------------
-# Drop Columns:
-st.subheader("Drop Columns")
-st.write("Select the columns you wish to remove")
-col1, col2 = st.columns([0.8, 0.2], vertical_alignment="center")
-
-with col1:
-    column_drop_list = st.pills(
-        label="Select the columns you wish to remove",
-        options=selected_df.columns,
-        label_visibility="collapsed",
-        selection_mode="multi",
-        key="column_drop_list",
-    )
-with col2:
-    st.button(
-        label="Drop Columns",
-        use_container_width=True,
-        on_click=helper_drop_columns,
-    )
+if st.button(label="Save Edits", use_container_width=True):
+    st.session_state.df_dict[selected_file] = primary_df_editor
 
 if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 # ---------------------------------------------------------------------------------------------
 
-
-# ---------------------------------------------------------------------------------------------
-# Reorder Columns:
-st.subheader("Reorder Columns")
-sorted_columns = sort_items(items=selected_df.columns.to_list())
-
-selected_df = selected_df[sorted_columns]
-if selected_file:
-    selected_df = st.session_state.df_dict[selected_file]
-st.dataframe(info_sample_rows(selected_df, 3, random=False, start="Head"))
 
 st.divider()
 # ---------------------------------------------------------------------------------------------
-
-# Column Operations:
-st.header("Row Operations:")
+# Tabs
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    [
+        "Column Management",
+        "Missing Data Handling",
+        "Transformation",
+        "Reshaping & Aggregation",
+        "Filtering",
+        "Export",
+    ]
+)
 # ---------------------------------------------------------------------------------------------
-# Drop Duplicates
-st.subheader("Drop Duplicate Rows")
-duped_df = info_duplicate_rows(selected_df)[1]
-if duped_df.empty:
-    st.success("No Duplicate Rows")
-else:
-    st.dataframe(duped_df)
-    col1, col2, col3 = st.columns(3)
+
+
+# ---------------------------------------------------------------------------------------------
+with tab1:
+    # Column Operations:
+    st.header("Column Operations:")
+
+    # ---------------------------------------------------------------------------------------------
+    # Change Data Type:
+    st.subheader("Rename / Change Data Types")
+
+    dtype_df = pd.DataFrame(
+        [
+            {"Column Name": col, "DataType": info_dtypes(selected_df, col)}
+            for col in selected_df
+        ]
+    )
+    if not dtype_df.empty:
+        dtype_df["DataType"] = dtype_df["DataType"].astype(str)
+
+        dtype_df_column_config = {
+            "Column Name": st.column_config.TextColumn("Column Name", disabled=False),
+            "DataType": st.column_config.SelectboxColumn(
+                "DataType",
+                options=DATA_TYPE_OPTIONS,
+                required=True,
+                help="Select a datatype for this column",
+            ),
+        }
+    else:
+        dtype_df_column_config = None
+
+    st.data_editor(
+        data=dtype_df,
+        num_rows="fixed",
+        column_config=dtype_df_column_config or None,
+        key="dtype_editor",
+    )
+
+    if st.button("Apply Renames and DataType Changes", use_container_width=True):
+        helper_apply_dtype_and_rename()
+
+    st.divider()
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    # Drop Columns:
+    st.subheader("Drop Columns")
+    st.write("Select the columns you wish to remove")
+    col1, col2 = st.columns([0.8, 0.2], vertical_alignment="center")
+
+    with col1:
+        column_drop_list = st.pills(
+            label="Select the columns you wish to remove",
+            options=selected_df.columns,
+            label_visibility="collapsed",
+            selection_mode="multi",
+            key="column_drop_list",
+        )
     with col2:
         st.button(
-            label="Drop Duplicate Rows",
+            label="Drop Columns",
             use_container_width=True,
-            on_click=helper_drop_duplicate_rows,
+            on_click=helper_drop_columns,
         )
 
-if selected_file:
-    selected_df = st.session_state.df_dict[selected_file]
-# ---------------------------------------------------------------------------------------------
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
 
+    st.divider()
+    # ---------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------
-# Drop Rows (By Condition + By Specific Row)
-st.subheader("Drop Rows")
+    # ---------------------------------------------------------------------------------------------
+    # Reorder Columns:
+    st.subheader("Reorder Columns")
+    sorted_columns = sort_items(items=selected_df.columns.to_list())
 
-# Condition Based:
-with st.expander("By Condition"):
-    col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.35, 0.2])
+    selected_df = selected_df[sorted_columns]
+    if selected_file:
+        st.session_state.df_dict[selected_file] = selected_df
+    st.dataframe(info_sample_rows(selected_df, 3, random=False, start="Head"))
+
+    st.divider()
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    # Create Column (With Values)
+    st.subheader("Create New Column")
+
+    column_fil_formulas = []
+
+    col1, col2, col3, col4 = st.columns([0.3, 0.15, 0.15, 0.4])
+
     with col1:
-        column_name = st.selectbox(
-            label="Column Name",
-            options=selected_df.columns,
-            placeholder="Age",
-            index=None,
-            key="drop_row_column",
+        new_col_name = st.text_input(
+            label="Column Name", placeholder="Name of the Column", key="new_col_name"
         )
     with col2:
-        operator = st.selectbox(
-            label="Operator",
-            options=["==", "!=", ">", ">=", "<", "<=", "Contains"],
-            index=0,
-            key="drop_row_operator",
+        new_col_dtype = st.selectbox(
+            label="Data Type", options=DATA_TYPE_OPTIONS, index=3, key="new_col_dtype"
         )
     with col3:
-        comparison_value = st.text_input(
-            label="Value", placeholder="30", key="drop_row_value"
+        new_col_mode = st.radio(
+            label="Fill Type",
+            options=["Same Value", "Formula"],
+            horizontal=True,
+            key="new_col_mode",
         )
     with col4:
-        comparison_value_type = st.selectbox(
-            label="Value Type",
-            options=["String", "Integer", "Float", "Boolean"],
-            placeholder="Integer",
-            key="drop_row_type",
-        )
-    filter_button = st.button(
-        label="Filter Dataset", use_container_width=True, on_click=helper_filter_dataset
-    )
-    if filter_button:
-        if "filtered_df" in st.session_state:
-            if len(st.session_state.filtered_df) == 0:
-                st.info("No Rows matched the condition above!")
-            else:
-                st.dataframe(st.session_state.filtered_df)
-                st.button(
-                    f"Delete {len(st.session_state.filtered_df)} Rows",
-                    on_click=helper_drop_displayed_rows,
-                    use_container_width=True,
-                )
-# Index Based:
-with st.expander("By Index"):
-    col1, col2 = st.columns([0.75, 0.25])
-    with col1:
-        rows_index = st.number_input(
-            label="Index of the row to delete:", min_value=0, max_value=len(selected_df)
-        )
-    with col2:
-        st.button("Delete Row")
+        if new_col_mode == "Same Value":
+            new_col_value = display_type_based_input(new_col_dtype)
+            st.session_state.new_col_value = new_col_value
+        elif new_col_mode == "Formula":
+            new_col_formula = st.selectbox(
+                label="Formula",
+                options=column_fil_formulas,
+                index=0,
+                key="new_col_formula",
+            )
+
+    if new_col_mode == "Formula":
+        display_function_options()
+
+    st.button(label="Create Column", on_click=helper_create_column)
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
+
+    st.divider()
+    # ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------
+
 # ---------------------------------------------------------------------------------------------
 
 
@@ -247,6 +273,12 @@ with st.expander("By Index"):
 # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
+
+# ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
