@@ -11,12 +11,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # ---------------------------------------------------------------------------------------------
 from components.sidebar import render_sidebar
 from components.display import display_type_based_input, display_function_options
-from utils.preset import DATA_TYPE_OPTIONS
-from utils.summary import info_dtypes, info_sample_rows
+from utils.preset import DATA_TYPE_OPTIONS, FILL_OPTIONS
+from utils.summary import info_dtypes, info_sample_rows, info_nulls
 from utils.manipulation import (
     helper_drop_columns,
     helper_apply_dtype_and_rename,
     helper_create_column,
+    helper_drop_null_rows,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ if selected_file:
     selected_df = st.session_state.df_dict[selected_file]
 else:
     selected_df = pd.DataFrame()
-# ---------------------------------------------------------------------------------------------
+# -----------------------------------------------------------                ----------------------------------
 
 
 # ---------------------------------------------------------------------------------------------
@@ -164,7 +165,7 @@ with tab1:
             options=selected_df.columns,
             label_visibility="collapsed",
             selection_mode="multi",
-            key="column_drop_list",
+            key=f"{selected_df}'s_column_drop_list",
         )
     with col2:
         st.button(
@@ -247,10 +248,52 @@ with tab2:
     # ---------------------------------------------------------------------------------------------
     # Drop Rows
     st.subheader("Drop Rows with NaN")
-    st.write(selected_df.isnull().count())
+    null_rows = selected_df.isnull().any(axis=1).sum()
+    st.info(f"Rows Containing Null Values: **{null_rows}**")
+
+    row_drop_list_by_column = st.pills(
+        label="Drop Rows in Selected Columns",
+        options=selected_df.columns,
+        selection_mode="multi",
+        key=f"row_drop_list_by_{selected_df}'s_column",
+    )
+    if len(row_drop_list_by_column) > 0:
+        col_amount_to_drop = len(row_drop_list_by_column)
+    else:
+        col_amount_to_drop = "All"
+
+    drop_row_button = st.button(
+        label=f"Drop Null from {col_amount_to_drop} Column(s)",
+        on_click=helper_drop_null_rows,
+    )
+
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
+
+    st.divider()
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------
+    # Fill Null Values
+    col1, col2 = st.columns([0.6, 0.4])
+
+    with col1:
+        fill_null_list_by_column = st.pills(
+            label="Select Columns to Fill",
+            options=selected_df.columns,
+            selection_mode="multi",
+            key=f"fill_null_list_by_{selected_df}'s_column",
+        )
+    with col2:
+        select_fill_options = st.selectbox(label="Fill Method", options=FILL_OPTIONS)
+
+    if select_fill_options == "Custom":
+        col1, col2 = st.columns([0.3, 0.7])
+
+        with col1:
+            data_type = st.selectbox(label="Data Type", options=DATA_TYPE_OPTIONS)
+        with col2:
+            custom_value_fill = display_type_based_input(data_type)
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------

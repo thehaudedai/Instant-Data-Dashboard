@@ -10,6 +10,8 @@ import datetime
 def display_type_based_input(type):
     type = str(type)
     input_value = None
+    first_input = None
+    second_input = None
 
     if type in ["int64", "Int64"]:
         input_value = st.number_input(label="Value", placeholder="1024", step=1)
@@ -20,9 +22,9 @@ def display_type_based_input(type):
         )
 
     elif type == "complex128":
-        real = st.number_input("Real part", step=0.1)
-        imag = st.number_input("Imag part", step=0.1)
-        input_value = complex(real, imag)
+        first_input = st.number_input("Real part", step=0.1)
+        second_input = st.number_input("Imag part", step=0.01)
+        input_value = complex(first_input, second_input)
 
     elif type == "boolean":
         input_value = st.toggle(label="True/False", value=False)
@@ -31,9 +33,9 @@ def display_type_based_input(type):
         input_value = st.text_input(label="Value", placeholder="Enter text")
 
     elif type == "datetime64[ns]" or type == "datetime64[ns, UTC]":
-        date_value = st.date_input(label="Date Value", value=datetime.date.today())
-        time_value = st.time_input(label="Time Value")
-        combined = datetime.datetime.combine(date_value, time_value)
+        first_input = st.date_input(label="Date Value", value=datetime.date.today())
+        second_input = st.time_input(label="Time Value")
+        combined = datetime.datetime.combine(first_input, second_input)
         if "UTC" in type:
             input_value = pd.Timestamp(combined, tz="UTC")
         else:

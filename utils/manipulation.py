@@ -44,7 +44,7 @@ def helper_apply_dtype_and_rename():
 def helper_drop_columns():
     selected_file = st.session_state.get("selected_file")
     df_dict = st.session_state.get("df_dict")
-    drop_list = st.session_state.get("column_drop_list")
+    drop_list = st.session_state.get(f"{df_dict[selected_file]}'s_column_drop_list")
 
     if not selected_file or not df_dict or not drop_list:
         return
@@ -108,6 +108,26 @@ def helper_create_column():
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
+
+
+def helper_drop_null_rows():
+    selected_file = st.session_state.get("selected_file")
+    df_dict = st.session_state.get("df_dict")
+
+    if not selected_file or not df_dict:
+        return
+
+    df = df_dict[selected_file].copy()
+    drop_list = st.session_state.get(
+        f"row_drop_list_by_{df_dict[selected_file]}'s_column"
+    )
+
+    if len(drop_list) > 0:
+        df = df.dropna(subset=drop_list).reset_index(drop=True)
+    else:
+        df = df.dropna().reset_index(drop=True)
+
+    st.session_state.df_dict[selected_file] = df
 
 
 # ------------------------------------------------------------------------------------------------
