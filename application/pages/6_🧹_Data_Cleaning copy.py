@@ -18,6 +18,7 @@ from utils.manipulation import (
     helper_apply_dtype_and_rename,
     helper_create_column,
     helper_drop_null_rows,
+    helper_fill_null_values,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -281,11 +282,13 @@ with tab2:
         fill_null_list_by_column = st.pills(
             label="Select Columns to Fill",
             options=selected_df.columns,
-            selection_mode="multi",
-            key=f"fill_null_list_by_{selected_df}'s_column",
+            selection_mode="single",
+            key=f"fill_null_by_{selected_df}'s_column",
         )
     with col2:
-        select_fill_options = st.selectbox(label="Fill Method", options=FILL_OPTIONS)
+        select_fill_options = st.selectbox(
+            label="Fill Method", options=FILL_OPTIONS, key="fill_method"
+        )
 
     if select_fill_options == "Custom":
         col1, col2 = st.columns([0.3, 0.7])
@@ -296,9 +299,10 @@ with tab2:
             custom_value_fill = display_type_based_input(data_type, "second_use")
             st.session_state.custom_value_fill = custom_value_fill
 
-    st.button(
-        label="Fill Null Values",
-    )
+    st.button(label="Fill Null Values", on_click=helper_fill_null_values)
+
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------

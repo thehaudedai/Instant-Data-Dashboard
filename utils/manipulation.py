@@ -132,3 +132,43 @@ def helper_drop_null_rows():
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
+
+
+def helper_fill_null_values():
+    selected_file = st.session_state.get("selected_file")
+    df_dict = st.session_state.get("df_dict")
+    fill_method = st.session_state.get("fill_method")
+
+    if not selected_file or not df_dict or not fill_method:
+        return
+
+    col = st.session_state.get(f"fill_null_by_{df_dict[selected_file]}'s_column")
+    df = df_dict[selected_file].copy()
+
+    try:
+        if fill_method == "Custom":
+            value = st.session_state.get("custom_value_fill")
+            if not value:
+                return
+            else:
+                df[col] = df[col].fillna(value)
+        elif fill_method == "Mean":
+            df[col] = df[col].fillna(df[col].mean())
+        elif fill_method == "Median":
+            df[col] = df[col].fillna(df[col].median())
+        elif fill_method == "Mode":
+            df[col] = df[col].fillna(df[col].mode()[0])
+        elif fill_method == "Forward Fill":
+            df[col] = df[col].fillna(method="ffill")
+        elif fill_method == "Backward Fill":
+            df[col] = df[col].fillna(method="bfill")
+        else:
+            return
+    except:
+        return
+
+    st.session_state.df_dict[selected_file] = df
+
+
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
