@@ -218,7 +218,7 @@ with tab1:
         )
     with col4:
         if new_col_mode == "Same Value":
-            new_col_value = display_type_based_input(new_col_dtype)
+            new_col_value = display_type_based_input(new_col_dtype, "first_use")
             st.session_state.new_col_value = new_col_value
         elif new_col_mode == "Formula":
             new_col_formula = st.selectbox(
@@ -293,7 +293,12 @@ with tab2:
         with col1:
             data_type = st.selectbox(label="Data Type", options=DATA_TYPE_OPTIONS)
         with col2:
-            custom_value_fill = display_type_based_input(data_type)
+            custom_value_fill = display_type_based_input(data_type, "second_use")
+            st.session_state.custom_value_fill = custom_value_fill
+
+    st.button(
+        label="Fill Null Values",
+    )
     # ---------------------------------------------------------------------------------------------
 
     # ---------------------------------------------------------------------------------------------

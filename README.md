@@ -7,12 +7,6 @@ A Streamlit dashboard that lets users upload datasets, clean and explore data, a
 
 ---
 
-```
-👀:  Open and view the hidden `.moonshot.md` file, in order to view the project logs, work time every day, my thoughts when doing this (meant as a checkpoint so I can resume my workflow when coming back from a break - feel free to go through my thoughts if you want).
-```
-
----
-
 ## 🚧 Project Features Roadmap & Implementation Checklist
 
 This is a living checklist of planned features and components grouped by functionality. Use it to track progress and stay focused on the scope.
@@ -36,12 +30,12 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Remove columns
 - [x] Reorder columns
 - [ ] Drop duplicates
-- [ ] Remove rows
+- [-] Remove rows
   - [ ] Remove Rows by Filtering
   - [x] Remove Rows by Indexing
 - [x] Change data types (int, float, string, datetime, categorical)
-- [ ] Handle missing values:
-  - [ ] Drop rows/columns with NaNs
+- [-] Handle missing values:
+  - [x] Drop rows/columns with NaNs
   - [ ] Fill NaNs with:
     - [ ] Mean
     - [ ] Median
@@ -50,7 +44,6 @@ This is a living checklist of planned features and components grouped by functio
     - [ ] Backward Fill
     - [ ] Custom value
 - [x] Edit/Replace specific cells/values (via data editor)
-- [x] Strip whitespaces
 - [x] Convert strings to datetime considering the string is preformatted in a datetime format
 - [ ] Convert categorical to numerical:
   - [ ] Label Encoding
@@ -60,7 +53,7 @@ This is a living checklist of planned features and components grouped by functio
 - [ ] Pivot / Unpivot (Melt) data
 - [ ] Filter rows (based on conditions)
 - [x] Sort data by columns
-- [ ] Create new columns
+- [-] Create new columns
   - [ ] Using Formula
   - [x] Using Same Values for all rows in the new column
 - [ ] Group by operations with aggregation (sum, mean, count, etc.)
