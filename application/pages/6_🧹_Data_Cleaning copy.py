@@ -12,13 +12,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from components.sidebar import render_sidebar
 from components.display import display_type_based_input, display_function_options
 from utils.preset import DATA_TYPE_OPTIONS, FILL_OPTIONS
-from utils.summary import info_dtypes, info_sample_rows, info_nulls
+from utils.summary import (
+    info_dtypes,
+    info_sample_rows,
+    info_duplicate_rows,
+    info_filter_dataset,
+)
 from utils.manipulation import (
     helper_drop_columns,
     helper_apply_dtype_and_rename,
     helper_create_column,
     helper_drop_null_rows,
     helper_fill_null_values,
+    helper_drop_duplicate_rows,
 )
 
 # ---------------------------------------------------------------------------------------------
@@ -98,12 +104,10 @@ if selected_file:
 st.divider()
 # ---------------------------------------------------------------------------------------------
 # Tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+tab1, tab2, tab3, tab4 = st.tabs(
     [
         "Column Management",
-        "Missing Data Handling",
-        "Transformation",
-        "Reshaping & Aggregation",
+        "Invalid Data Handling",
         "Filtering",
         "Export",
     ]
@@ -276,6 +280,7 @@ with tab2:
 
     # ---------------------------------------------------------------------------------------------
     # Fill Null Values
+    st.subheader("Fill NaN")
     col1, col2 = st.columns([0.6, 0.4])
 
     with col1:
@@ -303,15 +308,74 @@ with tab2:
 
     if selected_file:
         selected_df = st.session_state.df_dict[selected_file]
+
+    st.divider()
     # ---------------------------------------------------------------------------------------------
 
+    # Duplicate Rows Operations
+    st.header("Duplicate Rows")
     # ---------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------
+    # Remove Duplicate Rows
+    st.subheader("Remove Duplicate Rows")
+    duplicated_amount, duplicated_rows = info_duplicate_rows(selected_df)
 
+    if duplicated_amount > 0:
+        st.info("Only the Duplicated Row after the first one is shown")
+        st.dataframe(duplicated_rows)
+        st.button(
+            f"Delete {duplicated_amount} Rows",
+            on_click=helper_drop_duplicate_rows,
+            use_container_width=True,
+        )
+    else:
+        st.success("No Duplicate Rows")
+
+    if selected_file:
+        selected_df = st.session_state.df_dict[selected_file]
+    # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------------------------
+with tab3:
+    st.header("Filter Dataset")
+    # ---------------------------------------------------------------------------------------------
+    # Filter by Value:
+    st.subheader("Filter Method")
+    filter_method = st.segmented_control(
+        label="Select the Filter Method:",
+        options=["Comparison", "Index Range"],
+        key="filter_method",
+    )
+
+    if filter_method == "Comparison":
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            column_name = st.selectbox(
+                "Select Column", selected_df.columns, key="filter_column_name"
+            )
+        with col2:
+            comparison_operator = st.selectbox(
+                "Select Operator",
+                ["==", ">", ">=", "<", "<=", "Contains"],
+                key="filter_comparison_operator",
+            )
+        with col3:
+            filter_data_type = st.selectbox("Select DataType", DATA_TYPE_OPTIONS)
+        with col4:
+            filter_value = display_type_based_input(filter_data_type, "third_use")
+            st.session_state.filter_value = filter_value
+    elif filter_method == "Index Range":
+        pass
+
+    st.button("Filter", on_click=info_filter_dataset)
+
+    st.dataframe(st.session_state.get("filtered_df"))
+
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
 

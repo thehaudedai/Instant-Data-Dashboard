@@ -94,17 +94,18 @@ def helper_create_column():
 # ------------------------------------------------------------------------------------------------
 
 
-# def helper_drop_duplicate_rows():
-#     selected_file = st.session_state.get("selected_file")
-#     df_dict = st.session_state.get("df_dict")
+def helper_drop_duplicate_rows():
+    selected_file = st.session_state.get("selected_file")
+    df_dict = st.session_state.get("df_dict")
 
-#     if not selected_file or not df_dict:
-#         return
+    if not selected_file or not df_dict:
+        return
 
-#     df = df_dict[selected_file].copy()
+    df = df_dict[selected_file].copy()
 
-#     df = df.drop_duplicates(keep="first", ignore_index=True)
-#     st.session_state.df_dict[selected_file] = df
+    df = df.drop_duplicates(keep="first", ignore_index=True)
+    st.session_state.df_dict[selected_file] = df
+
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
@@ -165,9 +166,13 @@ def helper_fill_null_values():
         else:
             return
     except:
-        return
+        st.warning("Something Went Wrong. Please Recheck your Input and Try Again")
 
     st.session_state.df_dict[selected_file] = df
+
+
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------------------------

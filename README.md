@@ -36,13 +36,13 @@ This is a living checklist of planned features and components grouped by functio
 - [x] Change data types (int, float, string, datetime, categorical)
 - [-] Handle missing values:
   - [x] Drop rows/columns with NaNs
-  - [ ] Fill NaNs with:
-    - [ ] Mean
-    - [ ] Median
-    - [ ] Mode
-    - [ ] Forward Fill
-    - [ ] Backward Fill
-    - [ ] Custom value
+  - [x] Fill NaNs with:
+    - [x] Mean
+    - [x] Median
+    - [x] Mode
+    - [x] Forward Fill
+    - [x] Backward Fill
+    - [x] Custom value
 - [x] Edit/Replace specific cells/values (via data editor)
 - [x] Convert strings to datetime considering the string is preformatted in a datetime format
 - [ ] Convert categorical to numerical:

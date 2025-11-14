@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 
 def info_shape(df):
@@ -53,3 +54,44 @@ def info_summary(df):
 
     summary_df = pd.DataFrame(summary_rows)
     return summary_df
+
+
+def info_filter_dataset():
+    selected_file = st.session_state.get("selected_file")
+    df_dict = st.session_state.get("df_dict")
+
+    if not selected_file or not df_dict:
+        return
+
+    df = df_dict[selected_file].copy()
+
+    method = st.session_state.get("filter_method")
+
+    if method == "Comparison":
+        column = st.session_state.get("filter_column_name")
+        operator = st.session_state.get("filter_comparison_operator")
+        value = st.session_state.get("filter_value")
+    elif method == "Index Range":
+        pass
+
+    if method == "Comparison":
+        try:
+            match operator:
+                case "==":
+                    df = df[df[column] == value]
+                case ">":
+                    df = df[df[column] > value]
+                case ">=":
+                    df = df[df[column] >= value]
+                case "<":
+                    df = df[df[column] < value]
+                case "<=":
+                    df = df[df[column] <= value]
+                case "!=":
+                    df = df[df[column] != value]
+                case "Contains":
+                    df = df[df[column].str.contains(value, na=False)]
+        except:
+            pass
+
+    st.session_state.filtered_df = df
