@@ -365,10 +365,31 @@ with tab3:
         with col4:
             filter_value = display_type_based_input(filter_data_type, "third_use")
             st.session_state.filter_value = filter_value
-    elif filter_method == "Index Range":
-        pass
 
-    st.button("Filter", on_click=info_filter_dataset)
+        st.button("Filter", on_click=info_filter_dataset)
+
+    elif filter_method == "Index Range":
+        col1, col2 = st.columns(2)
+        with col1:
+            index_from = st.number_input(
+                label="Index From:",
+                min_value=0,
+                max_value=len(selected_df) - 1,
+                step=1,
+                key="index_from",
+            )
+        with col2:
+            index_until = st.number_input(
+                label="Index Until:",
+                min_value=0,
+                max_value=len(selected_df) - 1,
+                step=1,
+                key="index_until",
+            )
+
+        if st.button("Filter"):
+            filtered_df = selected_df.iloc[index_from:index_until]
+            st.session_state.filtered_df = filtered_df
 
     st.dataframe(st.session_state.get("filtered_df"))
 
